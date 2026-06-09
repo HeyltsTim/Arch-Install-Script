@@ -1,7 +1,6 @@
 #!/bin/bash
 
-
-countdown() {
+countdown_() {
 for i in {5..0}; do
 echo -ne "\r$i"
 sleep 1
@@ -9,34 +8,50 @@ done
 echo -ne "\r"
 }
 
+flush_fs() {
+echo "flushing $1..."
+fuser -k "/dev/$1"
+partprobe "/dev/$1"
+sync
+blockdev --flushbufs "/dev/$1"
+}
 
-# setup
+wipe_fs() {
 clear
-echo "please run as root.\nyou are $USER"
-umount -R /mnt
-lsblk
-echo "which drive would you like to partition?\n"
-read -p " drive name > /dev/" DRVNM
+echo "!WARNING! this action will wipe all data on drive $1"
+read -p "enter to continue ctrl+c to cancel ~ "
 clear
+echo "wiping drive in..."
+countdown_
+flush_fs $1
+wipefs -fa "/dev/$1"
+}
 
+unmount_fs() {
+flush_fs
+}
 
-# erase disk
-echo "!WARNING! this action will wipe all data on drive $DRVNM"
-read -p "enter to continue ctrl+c to cancel > "
-DRV="/dev/$DRVNM"
-clear
-echo "wiping drive..."
-countdown
-wipefs -fa $DRV
+partition_drv() {
+wipe_fs $1
 
-
-# partition disk
 echo "partitioning..."
-sfdisk -q --force --no-reread "$DRV" <<EOF
+sfdisk --force --no-reread "/dev/$1" <<EOF
 label: gpt
 type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, size=512MiB
 type=0FC63DAF-8483-4772-8E79-3D69D8477DE4
 EOF
+}
+
+#start of script
+echo "if you are not please run as root.\nyou are $USER"
+lsblk -d
+echo "note. # represents a placeholder for a number. placeholders for text will be represented by surrounding it with <>"
+echo "what is the name of your drive? ex. sda nvme#n# etc. and not ex. sda# nvme#n#p#"
+read -p "name of device you would like to use ~ " DRV
+echo "using $DRV"
+
+
+
 echo "refreshing..."
 partprobe -s $DRV
 echo
@@ -137,5 +152,5 @@ echo "installation completed"
 echo "unmounting filesystem"
 umount -R /mnt
 read -p "enter to reboot > "
-countdown
+countdown_
 #reboot
