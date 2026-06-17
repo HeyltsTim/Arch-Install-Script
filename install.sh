@@ -112,17 +112,18 @@ OPS="compress=zstd:5,noatime"
 OPS2="nodatacow,noatime"
 MNTO="mount -o subvol"
 ${MNTO}root,$OPS $RT /mnt
-mkdir -p /mnt/{home,boot,var/log,var/cache,var/swap,var/snapshots,ops/containers,ops/vmachines,var/tmp}
-${MNTO}cache,$OPS $RT /mnt/var/cache
+mkdir -p /mnt/{home,boot,var/log,var/cache,.swap,var/snapshots,ops/containers,ops/vmachines,var/tmp}
+${MNTO}=variable,${OPS},noexec $RT /mnt/var
+${MNTO}=cache,$OPS $RT /mnt/var/cache
 mkdir -p /mnt/var/cache/pacman/pkg
 ${MNTO}=logs,$OPS $RT /mnt/var/log
 ${MNTO}=users,$OPS $RT /mnt/home
 ${MNTO}=packages,$OPS $RT /mnt/var/cache/pacman/pkg
-${MNTO}=temp,$OPS $RT /mnt/var/tmp
+${MNTO}=temporary,$OPS $RT /mnt/var/tmp
 ${MNTO}=snapshots,$OPS $RT /mnt/var/snapshots
 ${MNTO}=containers,$OPS2 $RT /mnt/ops/containers
 ${MNTO}=virtualmachines,$OPS2 $RT /mnt/ops/vmachines
-${MNTO}=swap,$OPS2 $RT /mnt/var/swap
+${MNTO}=swap,$OPS2 $RT /mnt/.swap
 echo "mount btrfs subvolumes..."
 done_msg
 
@@ -137,9 +138,9 @@ findmnt -R /mnt
 read -p "enter to continue to package install > "
 
 echo "package install..."
-basestrap -Ki /mnt base sudo vim linux-rt seatd-dinit mkinitcpio \
+basestrap -Ki /mnt base sudo nano linux-rt seatd-dinit mkinitcpio \
 amd-ucode linux-firmware-mediatek linux-firmware-amdgpu \
-linux-firmware-realtek turnstile-dinit bash-completion iptables-dinit \
+linux-firmware-realtek turnstile-dinit bash-completion \
 dhcpcd-dinit btrfs-progs grub-btrfs efibootmgr dosfstools dbus-dinit dbus-dinit-user
 echo "package install..."
 done_msg
@@ -187,11 +188,16 @@ echo "hostname..."
 done_msg
 
 echo "credentials..."
-$CHRT passwd
-echo "add privilaged user"
+
+echo "add administrative user"
 read -p "username > " USRNM
 $CHRT useradd --btrfs-subvolume-home -m -g users -G wheel ${USRNM}
 $CHRT passwd $USRNM
+echo "disabling root user (use sudo)..."
+$CHRT sudo passwd -l root
+$CHRT usermod -s /sbin/nologin root
+$CHRT usermod -d / root
+rm -rf /mnt/root
 echo "credentials..."
 done_msg
 
