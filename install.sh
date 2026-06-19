@@ -211,6 +211,8 @@ done_msg
 
 echo "networking..."
 ${CHRT}"ln -s /etc/dinit.d/dhcpcd /etc/dinit.d/boot.d/"
+echo "nameserver 2606:4700:4700::1111 # Cloudflare\nnameserver 2620:fe::fe # Quad9" > /mnt/etc/resolv.conf
+
 done_msg
 
 echo "swapfile..."
@@ -222,7 +224,8 @@ done_msg
 
 echo "filesystem settings..."
 ${CHRT}"chattr +C /opt/vmachines /opt/containers /var/.swap"
-${CHRT}"chmod 700 /var/.swap /var/cache/pacman /var/.snapshots /boot"
+${CHRT}"chmod 700 /var/.swap /var/cache/pacman /var/.snapshots /boot /etc/fstab"
+${CHRT}"chown -R alpm:alpm /var/cache/pacman"
 done_msg
 
 echo -e "\e[1;5;32m[installation completed]\e[0m"
