@@ -76,7 +76,7 @@ echo -e "please run as root.\nyou are $USER\n"
 lsblk -dn
 
 echo "what is the name of your drive? ex: sd<a-z> or nvme#n# etc. and not sda# or nvme#n#p#"
-read -p "name of device you would like to use | " DRVNAME
+read -p "name of device you would like to use | " DRIVENAME
 echo "using $DRIVENAME"
 DRIVEPATH="/dev/$DRIVENAME"
 
