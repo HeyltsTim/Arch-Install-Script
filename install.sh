@@ -60,10 +60,9 @@ label: gpt
 type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, size=512MiB
 type=0FC63DAF-8483-4772-8E79-3D69D8477DE4
 EOF
-echo "partitioning ${1}..."
 flush_dv ${1}
 
-echo -e "\nwaiting for kernel partition table to update..."
+echo -e "waiting for kernel partition table to update..."
 sleep 15
 done_msg
 }
@@ -84,14 +83,14 @@ partition_drv $DRIVENAME
 
 lsblk -ln $DRIVEPATH
 echo "partition number ex: sda# or nvme0n1p#"
-read -p "boot(fat32) > $DRIVENAME" BOOTPTNUM
+read -p "boot(fat32) > $DRIVENAME" ESPPTNUM
 read -p "root(btrfs) > $DRIVENAME" ROOTPTNUM
-BOOT="$DRIVEPATH$BOOTPTNUM"
+ESP="$DRIVEPATH$ESPPTNUM"
 ROOT="$DRIVEPATH$ROOTPTNUM"
-echo "formating ${BOOT} as boot & ${ROOT} as root..."
-mkfs.vfat -F32 -n "ESP" $BOOT
+
+echo -e "\nformating ${ESP} as boot & ${ROOT} as root..."
+mkfs.vfat -F32 -n "ESP" $ESP
 mkfs.btrfs -L artix -f -M -O quota $ROOT
-echo "formating ${BOOT} as boot & ${ROOT} as root..."
 done_msg
 
 echo "build subvolumes..."
@@ -109,12 +108,10 @@ ${VLCT}logs
 ${VLCT}cache
 ${VLCT}temporary
 ${VLCT}swap
-echo "build subvolumes..."
 done_msg
 
 echo "unmount filesystems..."
 umount -R /mnt
-echo "unmount filesystems..."
 done_msg
 
 echo "mount btrfs subvolumes..."
@@ -137,12 +134,10 @@ ${MNTO}=snapshots,$LOCKED $ROOT /mnt/var/.snapshots
 ${MNTO}=containers $ROOT /mnt/opt/containers
 ${MNTO}=virtualmachines $ROOT /mnt/opt/vmachines
 ${MNTO}=swap,$LOCKED $ROOT /mnt/var/.swap
-echo "mount btrfs subvolumes..."
 done_msg
 
 echo "mount esp..."
 mount -t vfat -o $LOCKED $ESP /mnt/boot/efi
-echo "mount esp..."
 done_msg
 
 echo
@@ -155,12 +150,10 @@ basestrap -Ki /mnt base sudo vim linux-rt mkinitcpio \
 amd-ucode linux-firmware-mediatek linux-firmware-amdgpu \
 linux-firmware-realtek turnstile-dinit bash-completion \
 dhcpcd-dinit btrfs-progs grub-btrfs efibootmgr dosfstools acpid-dinit dbus-dinit dbus-dinit-user
-echo "package install..."
 done_msg
 
 echo "fstab..."
 fstabgen -U /mnt >> /mnt/etc/fstab
-echo "fstab..."
 done_msg
 
 CHRT="artix-chroot /mnt /bin/bash -c"
