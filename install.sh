@@ -240,12 +240,11 @@ ${CHRT}"chmod 700 /var/cache/pacman /var/.snapshots /boot"
 done_msg
 
 echo -e "\e[1;5;32m[installation completed]\e[0m"
-echo "unmounting filesystems"
-echo "waiting for processes to end gracefully"
+echo "unmount filesystems..."
+echo "waiting for processes to end gracefully..."
 countdown_
 fuser -k /mnt
 umount -Rl /mnt
-echo "unmounting filesystems"
 done_msg
 
 while true; do
