@@ -88,7 +88,7 @@ ROOT="${DRIVEPATH}${ROOTPTNUM}"
 
 echo -e "\nformating ${ESP} as boot & ${ROOT} as root..."
 mkfs.vfat -F32 -n "ESP" ${ESP}
-mkfs.btrfs -L artix -f -M -O quota ${ROOT}
+mkfs.btrfs -L artix -f -O quota ${ROOT}
 done_msg
 
 echo "build subvolumes..."
