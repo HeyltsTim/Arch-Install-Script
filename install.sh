@@ -229,7 +229,8 @@ ${CHRT}"chown -R alpm:alpm /var/cache/pacman"
 done_msg
 
 echo "system settings..."
-cp ./post-install.sh /mnt/home/${USRNM}/post-install.sh
+mkdir -p /mnt/opt/install
+cp -r ./root/* /mnt/
 
 echo -e "\e[1;5;32m[installation completed]\e[0m"
 echo "unmount filesystems..."
