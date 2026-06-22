@@ -154,6 +154,9 @@ read -p "enter to continue to package install > "
 echo "package install..."
 mapfile -t packages < <(grep -vE '^\s*#|^\s*$' ./root/etc/packages.conf)
 basestrap -Ki /mnt ${packages[@]}
+mkdir -p /mnt/opt/install
+cp -r ./root/* /mnt/
+${CHRT}"chmod +x /opt/install/post-install.sh"
 done_msg
 
 echo "fstab..."
@@ -207,6 +210,7 @@ done_msg
 echo "grub..."
 ${CHRT}"grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB"
 ${CHRT}"grub-mkconfig -o /boot/grub/grub.cfg"
+${CHRT}"mkinitcpio -P"
 done_msg
 
 echo "networking..."
@@ -227,11 +231,6 @@ ${CHRT}"chattr +C /opt/vmachines /opt/containers /var/.swap"
 ${CHRT}"chmod 700 /var/.swap /var/cache/pacman /var/.snapshots /boot /etc/fstab"
 ${CHRT}"chown -R alpm:alpm /var/cache/pacman"
 done_msg
-
-echo "system settings..."
-mkdir -p /mnt/opt/install
-cp -r ./root/* /mnt/
-${CHRT}"chmod +x /opt/install/post-install.sh"
 
 echo -e "\e[1;5;32m[installation completed]\e[0m"
 echo "unmount filesystems..."
