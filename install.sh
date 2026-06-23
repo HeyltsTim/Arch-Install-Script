@@ -158,7 +158,7 @@ echo "package install..."
 mapfile -t packages < <(grep -vE '^\s*#|^\s*$' ./root/etc/packages.conf)
 basestrap -Ki /mnt ${packages[@]}
 mkdir -p /mnt/opt/install
-cp -r ./root /mnt
+cp -r ./root/. /mnt
 ${CHRT}"chmod +x /opt/install/post-install.sh"
 done_msg
 
@@ -225,8 +225,9 @@ done_msg
 echo "swapfile..."
 read -p "swap size in gigabytes > " SWAP 
 ${CHRT}"fallocate -l ${SWAP}G /var/.swap/swapfile"
+${CHRT}"chattr +C /var/.swap/swapfile"
 ${CHRT}"chmod 600 /var/.swap/swapfile"
-${CHRT}"mkswap /var/.swap/swapfile"\
+${CHRT}"mkswap /var/.swap/swapfile"
 echo -e "\n/var/.swap/swapfile none swap defaults 0 0" >> /mnt/etc/fstab
 done_msg
 
@@ -236,7 +237,6 @@ ${CHRT}"chmod 700 /var/.swap /var/cache/pacman /var/.snapshots /boot /etc/fstab"
 ${CHRT}"chown -R alpm:alpm /var/cache/pacman"
 done_msg
 
-echo -e "\e[1;5;32m[installation completed]\e[0m"
 echo "unmount filesystems..."
 echo "waiting for processes to end gracefully..."
 countdown_
@@ -244,17 +244,20 @@ fuser -k /mnt 2>/dev/null || true
 umount -Rl /mnt
 done_msg
 
-while true; do
-  read -rp "type \"YES\" to reboot > " RBTYN
-  case "${RBTYN}" in
-    [Yy][Ee][Ss]);
-    "") echo "ctrl+c to exit";
-    *) echo "ctrl+c to exit";
-  esac
-done
+echo -e "\n\n\e[1;5;32m[installation completed]\e[0m"
 
-read -p "are you sure? > "
-clear
-echo "rebooting in..."
-countdown_
-reboot
+# broken. might fix later, ignore this.
+#while true; do
+#  read -rp "type \"YES\" to reboot > " RBTYN
+#  case "${RBTYN}" in
+#    [Yy][Ee][Ss]);
+#    "") echo "ctrl+c to exit";
+#    *) echo "ctrl+c to exit";
+#  esac
+#done
+
+#read -p "are you sure? > "
+#clear
+#echo "rebooting in..."
+#countdown_
+#reboot
