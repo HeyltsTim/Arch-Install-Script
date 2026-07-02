@@ -95,7 +95,6 @@ echo "build subvolumes..."
 mount ${ROOT} /mnt
 VLCT="btrfs subvolume create /mnt/"
 ${VLCT}root
-${VLCT}boot
 ${VLCT}users
 ${VLCT}containers
 ${VLCT}virtual-machines
@@ -123,7 +122,6 @@ MNTO="mount -o subvol"
 ${MNTO}=root,${OPT} ${ROOT} /mnt
 
 mkdir -p /mnt/{boot,home,srv,var}
-#${MNTO}=boot,${LOCKED} ${ROOT} /mnt/boot
 ${MNTO}=users,${SAFE} ${ROOT} /mnt/home
 ${MNTO}=services,${SAFE} ${ROOT} /mnt/srv
 ${MNTO}=variable,${SAFE} ${ROOT} /mnt/var
