@@ -218,14 +218,13 @@ ${CHRT}"mkinitcpio -P"
 done_msg
 
 echo "services..."
-srv=( "systemd-networkd" "systemd-resolved" "reflector" "lm_sensors" "gpm" "sudo_logsrvd" "systemd-oomd" "udisks2" "paccache.timer" "reflector.timer" "fstrim.timer" "pacman-filesdb-refresh.timer" "rsyncd" "sensord" "apparmor" "auditd" "audit-rules" "dbus-broker" "dropbear" "fail2ban" "shadow" "smartd" "systemd-timesyncd" "systemd-time-wait-sync" "ufw" "systemd-hostnamed" "uuid" "reflector.timer" "shadow" "shadow.timer")
-for i in ${srv[@]}
+mapfile -t services < <(grep -vE '^\s*#|^\s*$' ./root/etc/services.conf)
+#srv=( "systemd-networkd" "systemd-resolved" "reflector" "lm_sensors" "gpm" "sudo_logsrvd" "systemd-oomd" "udisks2" "paccache.timer" "reflector.timer" "fstrim.timer" "pacman-filesdb-refresh.timer" "rsyncd" "sensord" "apparmor" "auditd" "audit-rules" "dbus-broker" "dropbear" "fail2ban" "shadow" "smartd" "systemd-timesyncd" "systemd-time-wait-sync" "ufw" "systemd-hostnamed" "uuid" "reflector.timer" "shadow" "shadow.timer")
+for i in ${services[@]}
 ${CHRT}"systemctl enable ${i}"
+echo "${i}"
 done
 done_msg
-
-echo "other services..."
-${CHRT}"systemctl enable incus"
 
 echo "swapfile..."
 read -p "swap size in gigabytes > " SWAP 
