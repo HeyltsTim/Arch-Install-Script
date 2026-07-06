@@ -89,6 +89,7 @@ ROOT="${DRIVEPATH}${ROOTPTNUM}"
 echo -e "\nformating ${BOOT} as boot & ${ROOT} as root..."
 mkfs.vfat -F32 -n "boot" ${BOOT}
 mkfs.btrfs -L "root" -f -O quota ${ROOT}
+btrfstune -U 00000000-0000-0000-0000-000000000001 ${ROOT}
 done_msg
 
 echo "build subvolumes..."
